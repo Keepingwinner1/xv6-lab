@@ -268,6 +268,10 @@ fork(void)
   }
 
   // Copy user memory from parent to child.
+
+  // add mask
+  np->mask = p->mask;
+
   if(uvmcopy(p->pagetable, np->pagetable, p->sz) < 0){
     freeproc(np);
     release(&np->lock);
@@ -486,6 +490,16 @@ scheduler(void)
     if(found == 0) {
       intr_on();
       asm volatile("wfi");
+    }
+  }
+}
+
+void procnum(uint64* result){
+  *result = 0;
+  // must use 'struct' in c
+  for (struct proc *p = proc;p < &proc[NPROC];p++){
+    if (p->state != UNUSED){
+      (*result)++;
     }
   }
 }
